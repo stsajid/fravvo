@@ -15,7 +15,7 @@ const Footer = () => {
       className="py-12 px-6 bg-lathran-blue border-t border-lathran-orange/20"
       id="contact"
     >
-      <div className="max-w-4xl mx-auto text-left lg:text-center">
+      <div className="max-w-4xl mx-auto text-left lg:text-center"> 
         <div className="mb-6">
           <img
             src={lsLogo}
