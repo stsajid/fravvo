@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-scroll";
+import lsLogo from "../../public/lslogo.svg";
 
 const navItems = [
   { id: "host", label: "Host" },
@@ -66,7 +67,7 @@ const Navbar = () => {
 
           <div className="flex items-center relative z-[1000]">
             <img
-              src="../../public/LS Logo.svg"
+              src={lsLogo}
               alt="LathranSoft Logo"
               className="h-10 w-auto mx-auto cursor-pointer"
               style={{

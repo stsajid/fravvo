@@ -7,6 +7,7 @@ import {
   Instagram,
   Linkedin,
 } from "lucide-react";
+import lsLogo from "../../public/lslogo.svg";
 
 const Footer = () => {
   return (
@@ -17,7 +18,7 @@ const Footer = () => {
       <div className="max-w-4xl mx-auto text-left lg:text-center">
         <div className="mb-6">
           <img
-            src="../../public/LS Logo.svg"
+            src={lsLogo}
             alt="LathranSoft Logo"
             className="h-10 w-auto mx-auto"
             style={{ filter: "drop-shadow(0 0 15px rgba(237, 132, 37, 0.5))" }}
