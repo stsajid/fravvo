@@ -3,13 +3,13 @@ import { Link } from "react-scroll";
 import lsLogo from "../../public/lslogo.svg";
 
 const navItems = [
-  { id: "host", label: "Host" },
+  // { id: "host", label: "Host" },
   { id: "What to Expect", label: "What to Expect" },
-  { id: "session", label: "Session Details" },
-  { id: "tool", label: "Tool" },
-  { id: "breakdown", label: "Breakdown" },
+  // { id: "session", label: "Session Details" },
+  // { id: "tool", label: "Tool" },
+  { id: "breakdown", label: "Agenda" },
   { id: "register", label: "Join" },
-  { id: "contact", label: "Contact" },
+  // { id: "contact", label: "Contact" },
 ];
 
 const Navbar = () => {
