@@ -83,7 +83,6 @@ const Hero = ({ onRegisterClick }: HeroProps) => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-lathran-blue overflow-hidden mt-10">
-      <FloatingParticles />
 
       <motion.div
         className="absolute inset-0"

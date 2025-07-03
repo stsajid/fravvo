@@ -44,7 +44,7 @@ const Footer = () => {
                 <p className="text-xs" style={{ color: "#d1d5db" }}>
                   Have a question?
                 </p>
-                <p className="font-semibold">admin@lathran.com</p>
+                <p className="font-semibold">vibe@lathran.com</p>
               </div>
             </a>
           </div>
@@ -96,7 +96,7 @@ const Footer = () => {
                 <p className="text-xs" style={{ color: "#d1d5db" }}>
                   Built by LathranSoft
                 </p>
-                <p className="font-semibold">Ohio | UAE | Karachi</p>
+                <p className="font-semibold">Columbus, Ohio USA</p>
               </div>
             </div>
           </div>
