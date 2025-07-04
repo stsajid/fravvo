@@ -7,7 +7,7 @@ export const registerUser = async (payload: {
   city: string;
   whyAttend: string;
 }) => {
-  const response = await fetch("http://localhost:1337/api/registrations", {
+  const response = await fetch("https://strapi.fravvo.ai/api/registrations", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -26,7 +26,7 @@ export const registerUser = async (payload: {
 };
 
 export const getRegistrations = async () => {
-  const response = await fetch("http://localhost:1337/api/registrations");
+  const response = await fetch("https://strapi.fravvo.ai/api/registrations");
 
   if (!response.ok) {
     const errorData = await response.json();
