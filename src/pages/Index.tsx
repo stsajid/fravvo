@@ -114,9 +114,18 @@ const Index = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+  if (showVibePass) {
+    document.body.classList.remove("hide-cursor");
+  } else {
+    document.body.classList.add("hide-cursor");
+  }
+}, [showVibePass]);
+
   return (
     <div className="relative min-h-screen bg-lathran-blue text-white font-inter overflow-x-hidden">
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div className="fixed inset-0 z-0">
         <FloatingParticles />
       </div>
 
@@ -160,6 +169,7 @@ const Index = () => {
         <VibePass
           userName={registeredUser.name}
           userEmail={registeredUser.email}
+          onClose={() => setShowVibePass(false)}
         />
       )}
     </div>
