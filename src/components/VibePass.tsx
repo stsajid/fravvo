@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,14 +22,15 @@ interface VibePassProps {
   onClose: () => void;
 }
 
-const SHARE_LINK = "https://vibe.fravvo.ai/";
-
 const VibePass = ({ userName, userEmail, onClose }: VibePassProps) => {
   const { toast } = useToast();
   const [showShareMenu, setShowShareMenu] = useState(false);
 
   const modalRef = useRef(null);
   const shareModalRef = useRef(null);
+  const SHARE_LINK = `https://vibe.fravvo.ai/pass?name=${encodeURIComponent(
+    userName
+  )}&email=${encodeURIComponent(userEmail)}`;
 
   const handleDownload = () => {
     const doc = new jsPDF();
@@ -60,7 +60,10 @@ const VibePass = ({ userName, userEmail, onClose }: VibePassProps) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
         onClose();
       }
-      if (shareModalRef.current && !shareModalRef.current.contains(event.target)) {
+      if (
+        shareModalRef.current &&
+        !shareModalRef.current.contains(event.target)
+      ) {
         setShowShareMenu(false);
       }
     };
@@ -73,11 +76,14 @@ const VibePass = ({ userName, userEmail, onClose }: VibePassProps) => {
   }, [onClose]);
 
   const handleShareModalClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6 pointer-events-auto" style={{ cursor: "default" }}>
+    <div
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6 pointer-events-auto"
+      style={{ cursor: "default" }}
+    >
       <Card
         ref={modalRef}
         className="bg-gradient-to-br from-lathran-blue via-slate-800 to-lathran-blue border-2 border-lathran-orange/50 w-full max-w-md relative overflow-hidden rounded-xl shadow-xl"
@@ -105,7 +111,9 @@ const VibePass = ({ userName, userEmail, onClose }: VibePassProps) => {
             <h2 className="text-3xl font-black text-white font-poppins">
               You're In!
             </h2>
-            <p className="text-lathran-green text-lg font-semibold">{userName}</p>
+            <p className="text-lathran-green text-lg font-semibold">
+              {userName}
+            </p>
           </div>
 
           <div className="bg-lathran-blue/50 rounded-2xl p-4 border border-lathran-orange/20 space-y-3 text-left">
@@ -175,13 +183,14 @@ const VibePass = ({ userName, userEmail, onClose }: VibePassProps) => {
               <div className="bg-white p-3 rounded-lg shadow-lg max-w-xs w-full relative">
                 <button
                   onClick={() => setShowShareMenu(false)}
-                  className="absolute top-2 right-2 p-2 rounded-full bg-gray-300 hover:bg-gray-400"
+                  className="absolute top-2 right-2 p-1 rounded-full bg-lathran-orange hover:bg-lathran-orange/80 text-white"
                 >
-                  <X className="h-5 w-5 text-gray-600" />
+                  <X className="h-4 w-4 text-white" />
                 </button>
-                <h3 className="text-center text-lg font-bold text-gray-800 mb-4">
-                  Share Your Vibe Pass!
-                </h3>
+                <h2 className="text-xl font-bold text-center py-2 font-grotesk text-black">
+                  Share Your <span className="text-lathran-orange">Vibe</span>{" "}
+                  Pass
+                </h2>
                 <ShareSocial
                   url={SHARE_LINK}
                   socialTypes={[
@@ -209,14 +218,38 @@ const VibePass = ({ userName, userEmail, onClose }: VibePassProps) => {
                   }}
                   style={{
                     root: {
-                      background: "#182F41",
                       padding: "0.75rem",
                       borderRadius: "0.75rem",
+                      background: "#2e516e",
                     },
                     title: { display: "none" },
                     copyContainer: { display: "none" },
                   }}
                 />
+
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 shadow-[inset_0_0_0.5px_rgba(255,255,255,0.1),0_0_0_1px_rgba(255,255,255,0.05),0_1px_3px_rgba(0,0,0,0.3)] transition-shadow duration-300 rounded-lg px-3 py-2 my-4 shadow-inner">
+                    <input
+                      type="text"
+                      value={SHARE_LINK}
+                      readOnly
+                      className="flex-1 bg-transparent text-black text-sm font-mono focus:outline-none cursor-default"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(SHARE_LINK);
+                        toast({
+                          title: "Link copied!",
+                          description:
+                            "The share link has been copied to your clipboard.",
+                        });
+                      }}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-lathran-orange hover:bg-lathran-orange/80 text-white text-xs font-semibold rounded-md transition-all duration-150"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}

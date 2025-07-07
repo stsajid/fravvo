@@ -37,7 +37,7 @@ const Footer = () => {
           <div>
             <a
               href="mailto:hello@lathransoft.com"
-              className="flex items-center justify-start lg:justify-center gap-3 group font-inter relative z-[1000]"
+              className="flex items-center justify-start lg:justify-center gap-3 group font-inter relative"
             >
               <Mail className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
               <div className="hover:text-lathran-orange transition-colors duration-300">
@@ -50,7 +50,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <div className="flex items-center justify-start lg:justify-center gap-3 group font-inter relative z-[1000]">
+            <div className="flex items-center justify-start lg:justify-center gap-3 group font-inter relative">
               <Hash className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
               <div className="hover:text-lathran-green transition-colors duration-300 ">
                 <p className="text-xs" style={{ color: "#d1d5db" }}>

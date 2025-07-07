@@ -404,7 +404,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState, useEffect } from "react";
-import { ICountry, ICity } from "country-state-city";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -434,6 +433,7 @@ import {
   Brain,
 } from "lucide-react";
 import { registerUser } from "@/api/registration";
+import { Globe, MapPin, Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(50),
@@ -454,10 +454,19 @@ interface RegistrationFormProps {
   onSubmit?: (formData: FormData) => void;
 }
 
+interface Country {
+  name: string;
+  dialCode?: string;
+}
+
 const RegistrationForm = ({ onSubmit }: RegistrationFormProps) => {
   const { toast } = useToast();
-  const [countries, setCountries] = useState<ICountry[]>([]);
-  const [cities, setCities] = useState<ICity[]>([]);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
+  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [countryLoading, setCountryLoading] = useState<boolean>(true);
+  const [cityLoading, setCityLoading] = useState<boolean>(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -472,71 +481,103 @@ const RegistrationForm = ({ onSubmit }: RegistrationFormProps) => {
     },
   });
 
-  const selectedCountryIsoCode = form.watch("country") || "";
-
   useEffect(() => {
-    fetch("https://countriesnow.space/api/v0.1/countries/iso")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.data) {
-          const formatted = data.data.map((c: any) => ({
-            name: c.name,
-            isoCode: c.Iso2,
-          }));
-          setCountries(formatted);
-        }
-      })
+    const fetchCountries = async () => {
+      setCountryLoading(true);
+      try {
+        const [countriesRes, dialCodesRes] = await Promise.all([
+          fetch("https://countriesnow.space/api/v0.1/countries/iso"),
+          fetch("https://countriesnow.space/api/v0.1/countries/codes"),
+        ]);
 
-      .catch((err) => console.error("Failed to load countries", err));
+        if (!countriesRes.ok || !dialCodesRes.ok) {
+          throw new Error("One or more network requests failed");
+        }
+
+        const countriesData = await countriesRes.json();
+        const dialCodesData = await dialCodesRes.json();
+
+        if (countriesData.error || dialCodesData.error) {
+          throw new Error("API error in country or dial code data");
+        }
+        const dialMap = new Map<string, string>();
+        dialCodesData.data.forEach((item: any) =>
+          dialMap.set(item.name, item.dial_code)
+        );
+
+        const mergedCountries: Country[] = countriesData.data.map(
+          (country: Country) => ({
+            ...country,
+            dialCode: dialMap.get(country.name) || "",
+          })
+        );
+
+        const sortedData = mergedCountries.sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+
+        setCountries(sortedData);
+      } catch (error) {
+        console.error("Failed to fetch country/dial code data:", error);
+      } finally {
+        setCountryLoading(false);
+      }
+    };
+
+    fetchCountries();
   }, []);
 
-  useEffect(() => {
-    if (selectedCountryIsoCode) {
-      fetch(
-        "https://countriesnow.space/api/v0.1/countries/cities/q?iso2=" +
-          selectedCountryIsoCode
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.data) {
-            setCities(data.data.map((name: string) => ({ name })));
-          }
-        })
-        .catch((err) => console.error("Failed to load cities", err));
+  const handleCountryChange = async (value: string) => {
+    setSelectedCountry(value);
+    setSelectedCity("");
+    setCities([]);
+    form.setValue("country", value);
+    form.setValue("city", "");
 
-      fetch(`https://restcountries.com/v3.1/alpha/${selectedCountryIsoCode}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data && data[0] && data[0].idd) {
-            const root = data[0].idd.root || "";
-            const suffixes = data[0].idd.suffixes || [];
-            const phoneCode = suffixes.length > 0 ? root + suffixes[0] : root;
-            form.setValue("phone", phoneCode, { shouldValidate: true });
-          }
-        })
-        .catch((err) => {
-          console.error("Failed to fetch phone code", err);
-          form.setValue("phone", "");
-        });
+    if (!value) return;
 
-      form.setValue("city", "");
-    } else {
+    setCityLoading(true);
+    try {
+      const response = await fetch(
+        "https://countriesnow.space/api/v0.1/countries/cities",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ country: value }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Network response for cities was not ok");
+      }
+      const result = await response.json();
+      if (result.error) {
+        console.error("API Error:", result.msg);
+        setCities([]);
+      } else {
+        setCities(
+          result.data.sort((a: string, b: string) => a.localeCompare(b))
+        );
+      }
+    } catch (error) {
+      console.error("Failed to fetch city data:", error);
       setCities([]);
-      form.setValue("phone", "");
-      form.setValue("city", "");
+    } finally {
+      setCityLoading(false);
     }
-  }, [selectedCountryIsoCode, form]);
+  };
+
+  const handleCityChange = (value: string) => {
+    setSelectedCity(value);
+    form.setValue("city", value);
+  };
 
   const handleFormSubmit = async (data: FormData) => {
-    const countryName =
-      countries.find((c) => c.isoCode === data.country)?.name || data.country;
-
     const payload = {
       fullName: data.name,
       email: data.email,
       phoneNumber: data.phone,
       jobTitle: data.title,
-      country: countryName,
+      country: data.name,
       city: data.city,
       whyAttend: data.reason,
     };
@@ -673,19 +714,20 @@ const RegistrationForm = ({ onSubmit }: RegistrationFormProps) => {
                             Country *
                           </FormLabel>
                           <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
+                            onValueChange={handleCountryChange}
+                            value={selectedCountry}
                           >
-                            <FormControl>
-                              <SelectTrigger className="bg-white/5 border-white/20 text-white placeholder-slate-400 rounded-xl h-14 text-lg font-inter focus:border-lathran-orange focus:ring-lathran-orange/50 transition-all duration-300">
-                                <SelectValue placeholder="🌍 Select your country" />
-                              </SelectTrigger>
-                            </FormControl>
+                            <SelectTrigger
+                              id="country-select"
+                              className="bg-white/5 border-white/20 text-white placeholder-slate-400 rounded-xl h-14 text-base font-inter focus:border-lathran-orange focus:ring-lathran-orange/50 transition-all duration-300"
+                            >
+                              <SelectValue placeholder="Select a country..." />
+                            </SelectTrigger>
                             <SelectContent>
                               {countries.map((country) => (
                                 <SelectItem
-                                  key={country.isoCode}
-                                  value={country.isoCode}
+                                  key={country.name}
+                                  value={country.name}
                                 >
                                   {country.name}
                                 </SelectItem>
@@ -702,21 +744,47 @@ const RegistrationForm = ({ onSubmit }: RegistrationFormProps) => {
                     <FormField
                       control={form.control}
                       name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="block text-left text-sm font-semibold text-slate-300 font-inter">
-                            Phone Number *
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Your phone number"
-                              className="bg-white/5 border-white/20 text-white placeholder-slate-400 rounded-xl h-14 text-lg font-inter focus:border-lathran-orange focus:ring-lathran-orange/50 transition-all duration-300"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage className="text-red-400 text-sm" />
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        const dialCode =
+                          countries.find((c) => c.name === selectedCountry)
+                            ?.dialCode || "";
+
+                        const handleChange = (
+                          e: React.ChangeEvent<HTMLInputElement>
+                        ) => {
+                          const inputValue = e.target.value;
+
+                          const numericValue = inputValue.replace(/[^\d]/g, "");
+                          field.onChange(`${dialCode}${numericValue}`);
+                        };
+
+                        return (
+                          <FormItem>
+                            <FormLabel className="block text-left text-sm font-semibold text-slate-300 font-inter">
+                              Phone Number *
+                            </FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-lg font-inter select-none">
+                                  {dialCode || "+"}
+                                </span>
+                                <Input
+                                  placeholder="Enter phone number"
+                                  className="bg-white/5 border-white/20 text-white placeholder-slate-400 pl-16 rounded-xl h-14 text-lg font-inter focus:border-lathran-orange focus:ring-lathran-orange/50 transition-all duration-300"
+                                  value={
+                                    field.value?.replace(dialCode, "") || ""
+                                  }
+                                  onChange={handleChange}
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
+                                  maxLength={15}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage className="text-red-400 text-sm" />
+                          </FormItem>
+                        );
+                      }}
                     />
 
                     <FormField
@@ -728,28 +796,38 @@ const RegistrationForm = ({ onSubmit }: RegistrationFormProps) => {
                             City *
                           </FormLabel>
                           <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                            disabled={!selectedCountryIsoCode}
+                            onValueChange={handleCityChange}
+                            value={selectedCity}
+                            disabled={!selectedCountry || cityLoading}
                           >
-                            <FormControl>
-                              <SelectTrigger className="bg-white/5 border-white/20 text-white placeholder-slate-400 rounded-xl h-14 text-lg font-inter focus:border-lathran-orange focus:ring-lathran-orange/50 transition-all duration-300">
-                                <SelectValue placeholder="Select a city" />
-                              </SelectTrigger>
-                            </FormControl>
+                            <SelectTrigger
+                              id="city-select"
+                              className="bg-white/5 border-white/20 text-white placeholder-slate-400 rounded-xl h-14 text-base font-inter focus:border-lathran-orange focus:ring-lathran-orange/50 transition-all duration-300"
+                            >
+                              <SelectValue
+                                placeholder={
+                                  cityLoading
+                                    ? "Loading cities..."
+                                    : "Select a city..."
+                                }
+                              />
+                            </SelectTrigger>
                             <SelectContent>
-                              {cities.length > 0 ? (
+                              {cityLoading ? (
+                                <div className="flex items-center justify-center p-4">
+                                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                                </div>
+                              ) : cities.length > 0 ? (
                                 cities.map((city) => (
-                                  <SelectItem
-                                    key={`${city.name}-${city.stateCode}-${city.latitude}`}
-                                    value={city.name}
-                                  >
-                                    {city.name}
+                                  <SelectItem key={city} value={city}>
+                                    {city}
                                   </SelectItem>
                                 ))
                               ) : (
-                                <SelectItem value="-" disabled>
-                                  Select a country first
+                                <SelectItem value="no-cities" disabled>
+                                  {selectedCountry
+                                    ? "No cities available or found"
+                                    : "Select a country first"}
                                 </SelectItem>
                               )}
                             </SelectContent>

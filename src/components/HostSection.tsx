@@ -41,9 +41,10 @@ const HostSection = () => {
                   className="text-gray-200 mb-6 leading-relaxed font-inter text-lg"
                   style={{ textShadow: "0 1px 2px rgba(0,0,0,0.4)" }}
                 >
-                  Vinay has led large AI teams at Tesco, Landmark Group, and Sky
-                  - building AI-active workflows that boost speed, cut clutter,
-                  and help teams ship fast.
+                  With over two decades of experience in global retail and
+                  e-commerce, Vinay R. Kumar is a visionary CTO known for
+                  blending operational excellence with a passion for AI,
+                  emerging technologies, and scalable innovation.
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex gap-4 mb-6 w-max mx-auto text-center">
