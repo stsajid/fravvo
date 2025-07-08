@@ -7,6 +7,7 @@ import HostSection from "./HostSection";
 import EventDetails from "./EventDetails";
 import Expact from "./Expect";
 import { useToast } from "@/hooks/use-toast";
+import FloatingParticles from "./FloatingParticles";
 interface HeroProps {
   onRegisterClick: () => void;
 }
@@ -71,6 +72,9 @@ const Hero = ({ onRegisterClick }: HeroProps) => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-lathran-blue overflow-hidden mt-10">
+       <div className="fixed inset-0 z-0">
+              <FloatingParticles />
+            </div>
       <motion.div
         className="absolute inset-0"
         initial={{ opacity: 0 }}
