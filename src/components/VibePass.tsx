@@ -16,6 +16,7 @@ import jsPDF from "jspdf";
 import { ShareSocial } from "react-share-social";
 import { motion } from "framer-motion";
 import { toPng } from "html-to-image";
+import { Loader2 } from "lucide-react";
 
 interface VibePassProps {
   userName: string;
@@ -43,9 +44,10 @@ const VibePass = ({ userName, userEmail, onClose }: VibePassProps) => {
       const dataUrl = await toPng(input, {
         filter: (node) => !node.classList?.contains("hidden-for-download"),
         cacheBust: true,
+        pixelRatio: 1,
       });
       const dpi = 96;
-      const pxToMm = (px: number) => (px * 14.5) / dpi;
+      const pxToMm = (px: number) => (px * 24.5) / dpi;
       const img = new Image();
       img.src = dataUrl;
       await new Promise((resolve) => {
@@ -183,10 +185,15 @@ const VibePass = ({ userName, userEmail, onClose }: VibePassProps) => {
           >
             <Button
               onClick={handleDownload}
-              className="flex-1 bg-lathran-orange hover:bg-lathran-orange/80 text-white rounded-full font-semibold"
+              disabled={isDownloading}
+              className="flex-1 bg-lathran-orange hover:bg-lathran-orange/80 text-white rounded-full font-semibold flex items-center justify-center"
             >
-              <Download className="h-4 w-4 mr-2" />
-              Download Pass
+              {isDownloading ? (
+                <Loader2 className="animate-spin h-4 w-4 mr-2" />
+              ) : (
+                <Download className="h-4 w-4 mr-2" />
+              )}
+              {isDownloading ? "Downloading..." : "Download Pass"}
             </Button>
             <Button
               onClick={() => {
