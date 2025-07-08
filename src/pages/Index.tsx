@@ -1,21 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import VibePass from "@/components/VibePass";
-import SocialProof from "@/components/SocialProof";
 import Hero from "@/components/Hero";
-// import AboutSection from "@/components/AboutSection";
 import ToolsSection from "@/components/ToolsSection";
-import EventDetails from "@/components/EventDetails";
 import AudienceSection from "@/components/AudienceSection";
 import RegistrationForm from "@/components/RegistrationForm";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 import FloatingParticles from "@/components/FloatingParticles";
-import TerminalPreview from "@/components/TerminalPreview";
-import StatsBar from "@/components/StatsBar";
-import CTAButton from "@/components/CTAButton";
-import FeatureBadges from "@/components/FeatureBadges";
-import LiveStats from "@/components/LiveStats";
 import Navbar from "@/components/Navbar";
 import Agenda from "@/components/Agenda";
 import WhatYouNeed from "@/components/WhatYouNeed";
@@ -148,21 +140,11 @@ const Index = () => {
 
       <Navbar />
       <Hero onRegisterClick={handleRegisterClick} />
-      {/* <TerminalPreview terminalText={terminalText} />
-      <FeatureBadges registeredCount={registeredCount} />
-      <SocialProof registeredCount={registeredCount} />
-      <CTAButton onRegisterClick={handleRegisterClick} />
-      <StatsBar /> */}
-      {/* <LiveStats /> */}
-      {/* <SocialProof registeredCount={registeredCount} /> */}
-      {/* <AboutSection /> */}
       <ToolsSection />
       <Agenda />
-      {/* <EventDetails /> */}
       <WhatYouNeed />
       <AudienceSection />
       <RegistrationForm onSubmit={handleRegistration} />
-
       <Footer />
 
       {showVibePass && (

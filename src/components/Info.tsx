@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, CardContent } from "./ui/card";
 import { Code, Timer, Users, Zap } from "lucide-react";
 

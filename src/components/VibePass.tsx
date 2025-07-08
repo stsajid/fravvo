@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 import { ShareSocial } from "react-share-social";
 import { motion } from "framer-motion";
+import { toPng } from "html-to-image";
 
 interface VibePassProps {
   userName: string;
@@ -25,6 +26,7 @@ interface VibePassProps {
 const VibePass = ({ userName, userEmail, onClose }: VibePassProps) => {
   const { toast } = useToast();
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const modalRef = useRef(null);
   const shareModalRef = useRef(null);
@@ -32,27 +34,49 @@ const VibePass = ({ userName, userEmail, onClose }: VibePassProps) => {
     userName
   )}&email=${encodeURIComponent(userEmail)}`;
 
-  const handleDownload = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(22);
-    doc.setTextColor("#F97316");
-    doc.text("🎟️ VIBE PASS", 20, 20);
-    doc.setTextColor("#22C55E");
-    doc.setFontSize(18);
-    doc.text(`You're In!`, 20, 40);
-    doc.setFontSize(16);
-    doc.text(`Name: ${userName}`, 20, 55);
-    doc.text(`Email: ${userEmail}`, 20, 65);
-    doc.setFontSize(14);
-    doc.text("Session Details:", 20, 80);
-    doc.text("Date: TBA (You'll be notified)", 30, 90);
-    doc.text("Duration: 90 mins live", 30, 100);
-    doc.text("Your crew awaits", 30, 110);
-    doc.save("VibePass.pdf");
-    toast({
-      title: "Download ready! 📱",
-      description: "Your Vibe Pass PDF has been downloaded.",
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    await new Promise((r) => setTimeout(r, 100));
+    const input = modalRef.current;
+    if (!input) return;
+    try {
+      const dataUrl = await toPng(input, {
+        filter: (node) => !node.classList?.contains("hidden-for-download"),
+        cacheBust: true,
+      });
+      const dpi = 96;
+      const pxToMm = (px: number) => (px * 14.5) / dpi;
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise((resolve) => {
+        img.onload = resolve;
+      });
+
+      const pdfWidth = pxToMm(img.naturalWidth);
+      const pdfHeight = pxToMm(img.naturalHeight);
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: [pdfWidth, pdfHeight],
+      });
+
+      pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`VibePass - ${userName}.pdf`);
+
+      toast({
+        title: "Download ready!",
+        description: "Your Vibe Pass has been downloaded.",
+      });
+    } catch (error) {
+      console.error("Error generating image", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate your pass image.",
     });
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   useEffect(() => {
@@ -86,12 +110,16 @@ const VibePass = ({ userName, userEmail, onClose }: VibePassProps) => {
     >
       <Card
         ref={modalRef}
-        className="bg-gradient-to-br from-lathran-blue via-slate-800 to-lathran-blue border-2 border-lathran-orange/50 w-full max-w-md relative overflow-hidden rounded-xl shadow-xl"
+        className={`bg-gradient-to-br from-lathran-blue via-slate-800 to-lathran-blue border-2 border-lathran-orange/50 w-full max-w-md relative overflow-hidden shadow-xl ${
+          isDownloading ? "rounded-none" : "rounded-xl"
+        }`}
       >
         <button
           onClick={onClose}
           aria-label="Close modal"
-          className="absolute top-4 right-4 p-1 rounded-full bg-lathran-orange hover:bg-lathran-orange/80 text-white z-20"
+          className={`absolute top-4 right-4 p-1 rounded-full bg-lathran-orange hover:bg-lathran-orange/80 text-white z-20  ${
+            isDownloading ? "hidden-for-download" : ""
+          }`}
         >
           <X className="h-5 w-5" />
         </button>
@@ -149,7 +177,10 @@ const VibePass = ({ userName, userEmail, onClose }: VibePassProps) => {
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className={`flex gap-3 ${
+              isDownloading ? "hidden-for-download" : ""
+            }`}
+          >
             <Button
               onClick={handleDownload}
               className="flex-1 bg-lathran-orange hover:bg-lathran-orange/80 text-white rounded-full font-semibold"
@@ -220,7 +251,7 @@ const VibePass = ({ userName, userEmail, onClose }: VibePassProps) => {
                     root: {
                       padding: "0.75rem",
                       borderRadius: "0.75rem",
-                      background: "#2e516e",
+                      background: "#172B3D",
                     },
                     title: { display: "none" },
                     copyContainer: { display: "none" },

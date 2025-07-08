@@ -3,11 +3,8 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Sparkles } from "lucide-react";
-import FloatingParticles from "./FloatingParticles";
 import HostSection from "./HostSection";
-
 import EventDetails from "./EventDetails";
-
 import Expact from "./Expect";
 import { useToast } from "@/hooks/use-toast";
 interface HeroProps {
@@ -20,15 +17,6 @@ const Hero = ({ onRegisterClick }: HeroProps) => {
   const [terminalText, setTerminalText] = useState("");
   const [registeredCount, setRegisteredCount] = useState(81);
   const { toast } = useToast();
-
-  const handleRegisterClick = () => {
-    toast({
-      title: "🎫 Spot Reserved!",
-      description:
-        "Scroll down to complete your registration — you'll get an email confirmation shortly.",
-    });
-    document.getElementById("register")?.scrollIntoView({ behavior: "smooth" });
-  };
 
   const terminalCommands = [
     "npm create vibe-app",
@@ -83,7 +71,6 @@ const Hero = ({ onRegisterClick }: HeroProps) => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-lathran-blue overflow-hidden mt-10">
-
       <motion.div
         className="absolute inset-0"
         initial={{ opacity: 0 }}
@@ -194,7 +181,6 @@ const Hero = ({ onRegisterClick }: HeroProps) => {
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 ">
-                {/* Button 1: Secure My Spot (wrapped in <a>) */}
                 <a href="#register" className="w-[300px]">
                   <Button
                     type="button"
@@ -206,8 +192,6 @@ const Hero = ({ onRegisterClick }: HeroProps) => {
                     <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform duration-300" />
                   </Button>
                 </a>
-
-                {/* Button 2: See How it Works (also wrapped in <a>) */}
                 <a href="#breakdown" className="w-[300px]">
                   <Button
                     type="button"
@@ -221,26 +205,11 @@ const Hero = ({ onRegisterClick }: HeroProps) => {
               </div>
             </div>
 
-            {/* <motion.div
-              className="flex justify-center items-center"
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <div className="w-6 h-10 border-2 border-lathran-orange/60 rounded-full flex justify-center backdrop-blur-sm">
-                <motion.div
-                  className="w-1 h-3 bg-lathran-orange/80 rounded-full mt-2"
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-              </div>
-            </motion.div> */}
             <div className="text-left">
               <EventDetails />
             </div>
 
             <HostSection />
-
-            {/* <Info /> */}
           </motion.h1>
         </div>
         <div className="text-left">

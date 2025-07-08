@@ -1,7 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Brain, Code, Globe, MessageSquare, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import vsCode from "../../public/vs-code.svg";
 
 const ToolsSection = () => {
   const tools = [
